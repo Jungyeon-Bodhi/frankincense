@@ -22,7 +22,7 @@ warnings.filterwarnings("ignore", category=FutureWarning)
 file_path = 'data/012_ind_merged_uga_WEAI_1.1.dta'
 file_path2 = 'data/test.xlsx'
 
-data = pd.read_stata(file_path) # Open-source WEAI dataset (from)
+data = pd.read_stata(file_path) # Open-source WEAI dataset (from IFPRI)
 df = pd.read_excel(file_path2) # Dummy dataset for the domain test (from Bodhi)
 
 df = df.applymap(lambda x: x.lower() if isinstance(x, str) else x)
@@ -230,7 +230,7 @@ def unmatched_calculation(data):
 df = domain_1(df)
 df.to_csv('data/24-WFP-SO-1 domain_test.csv', index = False)
 data = domain_1(data)
-data.to_csv('data/24-WFP-SO-1 open_source_result.csv', index = False)
+Ddata.to_csv('data/24-WFP-SO-1 open_source_result.csv', index = False)
 
 unmatched_calculation(data)
 
