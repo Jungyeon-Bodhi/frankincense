@@ -62,13 +62,15 @@ cols_new = ['start','end','G1.01','G1.02a','G1.02b-1','G1.02c-1-1','G1.02c-1-2',
  'G5.01.A', 'G5.01.B', 'G5.01.C', 'G5.01.D', 'G5.01.E', 'G5.01.F', 'G5.01.G',
  'G5.02.A', 'G5.03.A', 'G5.04.A', 'G5.05.A', 'G5.02.B', 'G5.03.B', 'G5.04.B', 'G5.05.B',
  'G5.02.C', 'G5.03.C', 'G5.04.C', 'G5.05.C', 'G5.02.D', 'G5.03.D', 'G5.04.D', 'G5.05.D','G5.02.E', 'G5.02.F', 'G5.02.G',
- 'G6.01.A', 'G6.01.B', 'G6.01.C', 'G6.01.D', 'G6.01.E', 'G6.01.F', 'G6.01.G', 'G6.01.H',
- 'G6.01.I', 'G6.01.J', 'G6.01.K', 'G6.01.L', 'G6.01.M', 'G6.01.N', 'G6.01.O', 'G6.01.P', 'G6.01.Q', 'G6.01.R', 'G6.01.R.o', 'G6.02',
+ "G6.01-i","G6.01-ii",'G6.01.A1','G6.01.A2','G6.01.B1','G6.01.B2','G6.01.C1','G6.01.C2','G6.01.D1','G6.01.D2','G6.01.E1',
+ 'G6.01.E2','G6.01.F1','G6.01.F2','G6.01.G1','G6.01.G2','G6.01.H1','G6.01.H2','G6.01.I1','G6.01.I2','G6.01.J1','G6.01.J2',
+ 'G6.01.K1','G6.01.K2','G6.01.L1','G6.01.L2','G6.01.M1','G6.01.M2','G6.01.N1','G6.01.N2','G6.01.O1','G6.01.O2','G6.01.P1',
+ 'G6.01.P2','G6.01.Q1','G6.01.Q2','G6.01.R1','G6.01.R1.0','G6.01.R2','G6.01.R2.0', 'G6.02',
  'OUTCOMEINTERVIEW', '_id', '_uuid', '_submission_time', '_validation_status', '_notes', '_status', '_submitted_by', '__version__', '_tags','_index']
 # Specify new column names for data analysis (ensure they match the exact order of the existing columns)
 
 list_del_cols = ['start','end','OUTCOMEINTERVIEW', '_id', '_uuid', '_submission_time', '_validation_status', '_notes', 
-                 '_status', '_submitted_by', '__version__', '_tags','_index']
+                 '_status', '_submitted_by', '__version__', '_tags','_index',  "G6.01-i", "G6.01-ii"]
 # Specify the columns to be excluded from the data analysis
 
 miss_col = ['G1.01','G1.02a','G1.04','G1.05','G1.06','G1.07','G1.08a', 'G1.08b', 'G1.08c', 'G1.08d', 'G1.08e', 'G1.08f',
@@ -76,11 +78,11 @@ miss_col = ['G1.01','G1.02a','G1.04','G1.05','G1.06','G1.07','G1.08a', 'G1.08b',
            ,'G3.01a.F','G3.01a.G','G3.01a.H','G3.01a.I','G3.01a.J','G3.01a.K','G3.01a.L','G3.01a.M','G3.01a.N','G3.07.A','G3.07.B'
            ,'G3.07.C','G3.07.D','G3.07.E','G4.01','G4.02','G4.03','G4.04.A','G4.04.B','G4.04.C','G4.04.D','G4.04.E','G4.04.F'
            ,'G4.04.G','G4.04.H','G4.04.I','G4.04.J','G4.04.K','G5.01.A', 'G5.01.B', 'G5.01.C', 'G5.01.D', 'G5.01.E', 'G5.01.F', 'G5.01.G',
-           'G5.03.A','G5.03.B','G5.03.C','G5.03.D','G6.01.A', 'G6.01.B', 'G6.01.C', 'G6.01.D', 'G6.01.E', 'G6.01.F', 'G6.01.G', 'G6.01.H',
-            'G6.01.I', 'G6.01.J', 'G6.01.K', 'G6.01.L', 'G6.01.M', 'G6.01.N', 'G6.01.O', 'G6.01.P', 'G6.01.Q', 'G6.01.R','G6.02']
+           'G5.03.B','G5.03.C','G5.03.D', 'G6.01.A1','G6.01.B1', 'G6.01.C1', 'G6.01.D1', 'G6.01.E1', 'G6.01.F1', 'G6.01.G1',
+           'G6.01.H1', 'G6.01.I1', 'G6.01.J1', 'G6.01.K1', 'G6.01.L1', 'G6.01.M1', 'G6.01.N1', 'G6.01.O1', 'G6.01.P1', 'G6.01.Q1','G6.02']
 # Specify all columns that apply to all respondents for missing value detection
 
-open_cols = ['G4.04.K.o','G6.01.R.o']
+open_cols = ['G4.04.K.o','G6.01.R1.0','G6.01.R2.0']
 # Specify the open-ended columns (which will be saved in a separate Excel sheet and removed from the data frame)
 
 age_col = None

@@ -38,7 +38,7 @@ class Preprocessing:
         cols_new: list, New names for the columns (for data analysis purpose)
         regions: list, List of region columns
         locations: list, List of location columns
-        age_col: str, Column of age infromation (for age-grouping purpose)
+        age_col: str, Column of age information (for age-grouping purpose)
         diss_cols: list, Column of WG-SS questions in the dataset (for disability-grouping purpose)
         del_type: int, [0 or 1]
         -> 0: Remove all missing values from the columns where missing values are detected

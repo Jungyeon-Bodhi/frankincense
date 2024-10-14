@@ -129,7 +129,7 @@ class Domain():
             count_1 = 0 
             for resource, dc1, dc2, dc3, dc4 in zip(resources, decision_making1, decision_making2, decision_making3, decision_making4):
                 if row[resource] == 'yes' and resource not in ['G3.01a.D', 'G3.01a.F']:
-                    if any(dc in valid_values for dc in [dc1, dc2, dc3, dc4]):
+                    if any(row[dc] in valid_values for dc in [dc1, dc2, dc3, dc4]):
                         count_1 += 1
             df.at[index, 'resources_2'] = count_1
         df['purchase_sale_transfer'] = 0
@@ -141,7 +141,7 @@ class Domain():
     # Function to measure 'Indicator 2.3 Access to and decisions on credit'
     def resources_3(self):
         df = self.df
-        credits = ['G3.07.A','G3.07.B','G3.07.C','G3.07.D','G3.07.E']
+        credit_cols = ['G3.07.A','G3.07.B','G3.07.C','G3.07.D','G3.07.E']
         decision_making1 = ['G3.08.A','G3.08.B','G3.08.C','G3.08.D','G3.08.E']
         decision_making2 = ['G3.09.A','G3.09.B','G3.09.C','G3.09.D','G3.09.E']
         valid_values = ['self', 'self and partner/spouse jointly', 
@@ -151,9 +151,9 @@ class Domain():
         df['resources_3'] = 0
         for index, row in df.iterrows():
             count_1 = 0 
-            for credit, dc1, dc2 in zip(credits, decision_making1, decision_making2):
+            for credit, dc1, dc2 in zip(credit_cols, decision_making1, decision_making2):
                 if row[credit] not in ['no', "don't know"]:
-                    if any(dc in valid_values for dc in [dc1, dc2]):
+                    if any(row[dc] in valid_values for dc in [dc1, dc2]):
                         count_1 += 1
             df.at[index, 'resources_3'] = count_1
         df['access_credit'] = 0
@@ -249,17 +249,23 @@ class Domain():
     # To calculate how many sub-indicators can be aggregated into the "Indicator 5.1 Workload”   
     def time_1(self):
         df = self.df
-        work_activities = ['G6.01.E','G6.01.F','G6.01.G', 'G6.01.H', 'G6.01.I', 'G6.01.J', 'G6.01.K', 'G6.01.L', 'G6.01.M']
-        df['time_1'] = 0
+        primary_activities = ['G6.01.E1','G6.01.F1','G6.01.G1', 'G6.01.H1', 'G6.01.I1', 'G6.01.J1', 'G6.01.K1', 'G6.01.L1', 'G6.01.M1']
+        secondary_activities = ['G6.01.E2','G6.01.F2','G6.01.G2', 'G6.01.H2', 'G6.01.I2', 'G6.01.J2', 'G6.01.K2', 'G6.01.L2', 'G6.01.M2']
+        df['time_primary'] = 0
+        df['time_secondary'] = 0
         for index, row in df.iterrows():
             count_1 = 0
-            for work in work_activities:
-                if pd.notna(row[work]):
-                    count_1 += row[work]
-            df.at[index, 'time_1'] = count_1
+            count_2 = 0
+            for work_p, work_s in zip(primary_activities,secondary_activities):
+                if pd.notna(row[work_p]):
+                    count_1 += row[work_p]
+                if pd.notna(row[work_s]):
+                    count_2 += row[work_s]
+            df.at[index, 'time_primary'] = count_1
+            df.at[index, 'time_secondary'] = count_2*0.5
         df['workload'] = 0
-        df['workload'] = df.apply(lambda row: 1 if row['time_1'] < 10.5 else row['workload'],axis=1)
-        df.drop(columns='time_1', inplace = True)
+        df['workload'] = df.apply(lambda row: 1 if (row['time_primary'] + row['time_secondary']) < 10.5 else row['workload'],axis=1)
+        df.drop(columns=['time_primary','time_secondary'], inplace = True)
         self.df = df
         return True
 
