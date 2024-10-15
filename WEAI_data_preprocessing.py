@@ -3,7 +3,7 @@
 """
 Created on Mon Sep  3 09:07:52 2024
 
-@author: Bodhi Global Analysis (Jungyeon Lee)
+@author: Bodhi Global Analysis
 """
 
 """
@@ -340,6 +340,7 @@ class Preprocessing:
     def lower_case(self):
         df = self.df
         df = df.applymap(lambda x: x.lower() if isinstance(x, str) else x)
+        df["G1.06"] = df["G1.06"].replace({"dual-adult household (male and female adult)":"dual-adult household"})
         self.df = df
         return True
     

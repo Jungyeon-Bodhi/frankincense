@@ -3,7 +3,7 @@
 """
 Created on Tue Sep 24 11:18:51 2024
 
-@author: Bodhi Global Analysis (Jungyeon Lee)
+@author: Bodhi Global Analysis
 """
 
 """
@@ -16,7 +16,7 @@ project_name = "WFP WEAI in Somalia"
 file_type = 'xlsx' 
 # Original data format: xlsx, xls, csv
 
-file_path = "Data/dummy"
+file_path = "Data/"
 # Original data location and name (excluding file extension): "Data/(name)"
 
 file_path_others = "Data/24-WFP-SO-1 Open-End.xlsx"

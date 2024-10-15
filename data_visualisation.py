@@ -26,7 +26,7 @@ def bar_state(df, col1, col2, replace_dict, title, fontsize, output_file, custom
     # Calculate percentages
     percent_data = grouped_data.divide(grouped_data.sum(axis=0), axis=1) * 100  # Percent per province
     # Plotting the stacked bar chart
-    ax = grouped_data.plot(kind='bar', stacked=False, figsize=(10, 6), color=[bodhi_primary_1, bodhi_complement, bodhi_tertiary, bodhi_blue, bodhi_grey, bodhi_secondary])
+    ax = grouped_data.plot(kind='bar', stacked=False, width=0.65,figsize=(12, 8), color=[bodhi_primary_1, bodhi_complement, bodhi_tertiary, bodhi_blue, bodhi_grey, bodhi_secondary])
     plt.title(title, fontsize=fontsize+2)
     plt.xlabel(' ')
     plt.ylabel('Count')
@@ -39,26 +39,25 @@ def bar_state(df, col1, col2, replace_dict, title, fontsize, output_file, custom
             percentage = percent_data[item].iloc[i]
             label = f'{height:.0f}\n({percentage:.1f}%)'
             ax.text(bar.get_x() + bar.get_width() / 2, 
-                height, label, ha='center', va='bottom', fontsize=fontsize-2)
+                height, label, ha='center', va='bottom', fontsize=fontsize-3.5)
     y_max = ax.get_ylim()[1]
     ax.set_ylim(0, y_max * 1.1) 
-    plt.tight_layout()
     plt.savefig(output_file, bbox_inches='tight', dpi=600)
     
 def weai_visual(data, title, fontsize, output_file):
     df = pd.DataFrame(data)
     plt.figure(figsize=(24, 10))
-    ax = df.set_index('Contents').plot(kind='bar', stacked=False, color=color_palette, width=0.8)
+    ax = df.set_index('State').plot(kind='bar', stacked=False, color=color_palette, width=0.65)
 
     for container in ax.containers:
         for bar in container:
-            height = bar.get_height()  # 막대의 높이
+            height = bar.get_height()
             ax.text(bar.get_x() + bar.get_width() / 2.0, bar.get_y() + height, 
-                    f'{height:.2f}', ha='center', va='bottom', fontsize=fontsize, color='black')
+                    f'{height:.2f}', ha='center', va='bottom', fontsize=fontsize-2, color='black')
 
 
     ax.set_xticks(range(len(df)))
-    ax.set_xticklabels(df['Contents'], rotation=0, ha='center', fontsize=fontsize-1)
+    ax.set_xticklabels(df['State'], rotation=0, ha='center', fontsize=fontsize-1)
     ax.tick_params(axis='y', labelsize=7)
     ax.set_ylim(0, 1.1)
     plt.title(title, fontsize=fontsize+2)
@@ -67,8 +66,7 @@ def weai_visual(data, title, fontsize, output_file):
     plt.legend(prop={'size': fontsize})
     plt.savefig(output_file, bbox_inches='tight', dpi=600)
 
-df = pd.read_excel('data/dummy_cleaned_2.xlsx', index_col=0)
-df = df.applymap(lambda x: x.lower() if isinstance(x, str) else x)
+df = pd.read_excel('data/.xlsx', index_col=0)
 
 df["G1.06"] = df["G1.06"].replace({"dual-adult household (male and female adult)":"dual-adult household"})
 
@@ -86,7 +84,7 @@ bar_state(df, 'G1.02a', 'G1.06', replace_dict, title = 'Household type distribut
 
 # 3. WEAI and GPI score visualisation
 data = {
-    "Contents": ["Puntland", "Jubaland", "South West\nState", "Hirshabelle", "Galmudug", 'Somaliland'],
+    "State": ["Puntland", "Jubaland", "South West\nState", "Hirshabelle", "Galmudug", 'Somaliland'],
     "WEAI" : [0.42, 0.48, 0.50, 0.37, 0.55, 0.20], # Please adjust these valuses manually
     "GPI" : [0.35, 0.55, 0.53, 0.43, 0.6, 0.22],}  # Please adjust these valuses manually
 

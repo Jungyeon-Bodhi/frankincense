@@ -7,6 +7,7 @@ Created on Wed Oct  9 15:36:00 2024
 """
 import pandas as pd
 import numpy as np
+import matplotlib.pyplot as plt
 from openpyxl import load_workbook
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.styles import Font
@@ -30,7 +31,7 @@ class WEAI():
         
         # Label if they pass the empowerment criteria
         df['empowered'] = 0 
-        df.loc[(df['G1.04'] == 'female') & (df['i_score'] >= 0.8), 'empowered'] = 1
+        df.loc[df['i_score'] >= 0.8, 'empowered'] = 1
         
         # Calculate the average proportion of domains in which disempowered women experience inadequate achievements
         df2 = df[(df['G1.04']=="female") & (df['empowered']== 0)].copy()
@@ -46,6 +47,43 @@ class WEAI():
         self.empowered_w_ratio = round(1 - self.non_empowered_w_ratio,4)  # Percentage of empowered women
         self.disempowerment_score = round(self.non_empowered_w_ratio * self.average_disempowered,4) # Value of Disempowerment score
         self.five_de = 1 - self.disempowerment_score # Value of 5DE sub-index
+        
+        cols = []
+        values = []
+        for i, col in enumerate(self.columns_indicators):
+            cols.append(col)
+            values.append(disempowered_ratios[i])
+        total_contribution = sum(values)
+        if total_contribution > 0:
+            for i, col in enumerate(cols):
+                values[i] = round(values[i] / total_contribution * self.disempowerment_score, 4)
+        self.domain_contribution_w = pd.DataFrame({'Disempowerment Countribution Rate (Female)': values}, index=cols)
+        
+        df3 = df[(df['G1.04']=="male") & (df['empowered']== 0)].copy()
+        disempowered_ratios_m = []
+        for col in self.columns_indicators:
+            disempowered_ratio_m = (df3[col] == 0).mean()
+            disempowered_ratios_m.append(disempowered_ratio_m)
+        self.average_disempowered_m = round(sum(disempowered_ratios_m) / len(disempowered_ratios_m),4) # Average proportion of domains in which disempowered women experience inadequate achievements
+        self.total_male = len(df[df['G1.04'] == 'male']) # Total number of women
+        self.non_empowered_m = len(df[(df['G1.04']=="male") & (df['empowered']==0)]) # Total number not empowered women
+        self.empowered_m = len(df[(df['G1.04']=="male") & (df['empowered']==1)]) # Total number empowered women
+        self.non_empowered_m_ratio = round(self.non_empowered_m/self.total_male,4) # Percentage of not empowered women
+        self.empowered_m_ratio = round(1 - self.non_empowered_m_ratio,4)  # Percentage of empowered women
+        self.disempowerment_score_m = round(self.non_empowered_m_ratio * self.average_disempowered_m,4) # Value of Disempowerment score
+        self.five_de_m = 1 - self.disempowerment_score_m # Value of 5DE sub-index
+        
+        cols = []
+        values = []
+        for i, col in enumerate(self.columns_indicators):
+            cols.append(col)
+            values.append(disempowered_ratios_m[i])
+        total_contribution = sum(values)
+        if total_contribution > 0:
+            for i, col in enumerate(cols):
+                values[i] = round(values[i] / total_contribution * self.disempowerment_score_m, 4)
+        self.domain_contribution_m = pd.DataFrame({'Disempowerment Countribution Rate (Male)': values}, index=cols)
+        self.domain_contribution = pd.concat([self.domain_contribution_w, self.domain_contribution_m], axis=1)
         return True
         
     def gender_parity_index(self):
@@ -113,12 +151,12 @@ class WEAI():
         for idx, col in enumerate(self.columns_indicators):
             count_ones = df[col].sum()
             total_count = df[col].count()
-            list_values[idx] = count_ones / total_count 
+            list_values[idx] = round(count_ones / total_count , 4)
 
         domain_table_dic = {'1. Production': {
         ("Input in productive decisions", "Autonomy in production"): [list_values[0], list_values[1]]},
         "2. Resources": {("Ownership of assets", "Purchase, sale, or transfer of assets", "Access to and decisions on credit"): [list_values[2], list_values[3], list_values[4]]},
-        "3. Income": {('Control over use of income'): [list_values[5]]},"4. Leadership": {("Group membership", "Speaking in public"): [list_values[6], list_values[7]]},
+        "3. Income": {("Control over the use of income",): [list_values[5]]},"4. Leadership": {("Group membership", "Speaking in public"): [list_values[6], list_values[7]]},
         "5. Time allocation": {("Workload", "Leisure"): [list_values[8], list_values[9]]}}
         rows = []
         
@@ -146,10 +184,12 @@ class WEAI():
         'Percentage of women who have 5DE scores lower than those of the primary adult males in their households',
         'For women lacking parity, the average percentage shortfall they experience relative to the males in their household',
         "Women's Empowerment in Agriculture Index"]
-        value_list = [self.five_de, self.disempowerment_score, self.total_female, self.average_disempowered, self.empowered_w_ratio,
+        value_list_f = [self.five_de, self.disempowerment_score, self.total_female, self.average_disempowered, self.empowered_w_ratio,
                      self.non_empowered_w_ratio, self.gpi, self.total_respondents, self.gender_parity_ratio, self.gender_not_parity_ratio,
                      self.average_difference, self.weai]
-        indicators_to_table = {"Indicator": indicator_list, "Detail": detail_list,"Value": value_list}
+        value_list_m = [self.five_de_m, self.disempowerment_score_m, self.total_male, self.average_disempowered_m, self.empowered_m_ratio,
+                     self.non_empowered_m_ratio, '-', '-', '-', '-','-', '-']
+        indicators_to_table = {"Indicator": indicator_list, "Detail": detail_list,"Female": value_list_f, "Male": value_list_m}
         table = pd.DataFrame(indicators_to_table)
         self.weai_table = table
         return self.weai_table
@@ -163,6 +203,8 @@ class WEAI():
             self.weai_table.to_excel(writer, sheet_name=self.name, index=True, header=True)
             startrow = self.weai_table.shape[0] + 2
             self.domain_table.to_excel(writer, sheet_name=self.name, startrow=startrow, index=True, header=True)
+            startrow = self.domain_table.shape[0] + startrow + 2
+            self.domain_contribution.to_excel(writer, sheet_name=self.name, startrow=startrow, index=True, header=True)
                 
         wb = load_workbook(file_path)
         ws = wb[self.name]
@@ -199,6 +241,7 @@ class WEAI():
         
         # Get the unique values in the specified group column
         unique_values = self.df[group_by_column].unique()
+        unique_values = sorted(unique_values)
         
         # Initialize an empty list to store rows of metrics for each group
         metrics_list = []
@@ -229,12 +272,18 @@ class WEAI():
             # Create the dictionary for the row with the group name and calculated metrics
             row = {
                 f"{group_name}": value,
-                "5DE": self.five_de,
-                "Disempowerment Score": self.disempowerment_score,
-                "N": self.total_female,
+                "5DE (Female)": self.five_de,
+                "5DE (Male)": self.five_de_m,
+                "Disempowerment Score (Female)": self.disempowerment_score,
+                "Disempowerment Score (Male)": self.disempowerment_score_m,
+                "N (Female)": self.total_female,
+                "N (Male)": self.total_male,
                 "Average % of disempowered women's inadequate achievements":self.average_disempowered,
+                "Average % of disempowered men's inadequate achievements":self.average_disempowered_m,
                 "% of women achieving empowerment": self.empowered_w_ratio,
+                "% of men achieving empowerment": self.empowered_m_ratio,
                 "% of women not achieving empowerment": self.non_empowered_w_ratio,
+                "% of men not achieving empowerment": self.non_empowered_m_ratio,
                 "GPI Score": self.gpi,
                 "N (Number of dual-adult households)": self.total_respondents,
                 "% of women achieving gender parity": self.gender_parity_ratio,

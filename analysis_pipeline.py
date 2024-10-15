@@ -14,17 +14,16 @@ import pandas as pd
 project_tag = "24-WFP-SO-1"
 
 # Please assign the file path of the cleaned dataset
-file_path = 'data/dummy_cleaned_2.xlsx' 
+file_path = 'data/.xlsx' 
 
 # Please assign the file path for data analysis matrix
-file_path2 = "data/tables.xlsx"
+file_path2 = f"data/{project_tag} statistic_tables.xlsx"
 
 # Please assign the file path for breakdown data
-file_path3 = "data/tables_breakdown.xlsx"
+file_path3 = f"data/{project_tag} breakdown_tables.xlsx"
 
 # Please assign the file path for data analysis matrix
 df = pd.read_excel(file_path)
-df = df.applymap(lambda x: x.lower() if isinstance(x, str) else x)
 
 # Run the domain analysis
 domains = domain.Domain(df)
