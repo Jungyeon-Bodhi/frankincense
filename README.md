@@ -46,3 +46,4 @@
       1) Respondents gender distribution
       2) Household type distribution (Single female households and dual-adult households)
       3) WEAI and GPI scores
+      4) Disempowerment Contribution rates
