@@ -261,8 +261,11 @@ class Domain():
                     count_1 += row[work_p]
                 if pd.notna(row[work_s]):
                     count_2 += row[work_s]
-            df.at[index, 'time_primary'] = count_1
-            df.at[index, 'time_secondary'] = count_2*0.5
+            count_2 = count_2 * 0.5
+            df['time_primary'] = df['time_primary'].astype(float)
+            df['time_secondary'] = df['time_secondary'].astype(float)
+            df.at[index, 'time_primary'] = round(float(count_1) / 60, 3)
+            df.at[index, 'time_secondary'] = round(float(count_2) / 60, 3)
         df['workload'] = 0
         df['workload'] = df.apply(lambda row: 1 if (row['time_primary'] + row['time_secondary']) < 10.5 else row['workload'],axis=1)
         df.drop(columns=['time_primary','time_secondary'], inplace = True)

@@ -22,7 +22,7 @@ from openpyxl import load_workbook
 class Preprocessing:
     
     def __init__(self, name, file_path, file_path_others, list_del_cols, dates, miss_col, anon_col, identifiers, opened_cols, cols_new, regions
-                 ,locations, age_col = None, diss_cols = None, del_type = 0, file_type='xlsx'):
+                 ,locations, g6_questions, age_col = None, diss_cols = None, del_type = 0, file_type='xlsx'):
         """
         - Initialise the Performance Management Framework class
 
@@ -38,6 +38,7 @@ class Preprocessing:
         cols_new: list, New names for the columns (for data analysis purpose)
         regions: list, List of region columns
         locations: list, List of location columns
+        g6_questions: List, List of G6 Questions
         age_col: str, Column of age information (for age-grouping purpose)
         diss_cols: list, Column of WG-SS questions in the dataset (for disability-grouping purpose)
         del_type: int, [0 or 1]
@@ -59,6 +60,7 @@ class Preprocessing:
         self.cols_new = cols_new
         self.regions = regions
         self.locations = locations
+        self.g6_questions = g6_questions
         self.age_col = age_col
         self.diss_cols = diss_cols
         self.del_type = del_type
@@ -98,6 +100,7 @@ class Preprocessing:
         - To remove dates on which the pilot test was conducted from the dataset
         """
         df = self.df 
+        df['today'] = df['end'].astype(str).str[:10]
         dates = self.dates
         for date in dates:
             df = df[df['today'] != date]
@@ -344,6 +347,16 @@ class Preprocessing:
         self.df = df
         return True
     
+    def g6_uniform(self):
+        """
+        - Unify the G6 response values
+        """
+        cols = self.g6_questions
+        df = self.df
+        for col in cols:
+            df.loc[df[col] < 15, col] *= 60
+        self.df = df
+    
     def processing(self):
         """
         - To conduct data pre-processing
@@ -372,6 +385,7 @@ class Preprocessing:
         self.missing_value_clean()
         self.open_ended_cols()
         self.region_location()
+        self.g6_uniform()
         if self.age_col != None:
             self.age_group()
         if self.diss_cols != None:

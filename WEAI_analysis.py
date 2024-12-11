@@ -27,7 +27,7 @@ class WEAI():
     def individual_empowerment_score(self):
         df = self.df
         # Individual's Empowerment Score
-        df['i_score'] = df.apply(lambda row: sum(row[col] * self.score_map[col] for col in self.score_map.keys()), axis=1)
+        df['i_score'] = df.apply(lambda row: round(sum(row[col] * self.score_map[col] for col in self.score_map.keys()), 3), axis=1)
         
         # Label if they pass the empowerment criteria
         df['empowered'] = 0 
@@ -56,7 +56,7 @@ class WEAI():
         total_contribution = sum(values)
         if total_contribution > 0:
             for i, col in enumerate(cols):
-                values[i] = round(values[i] / total_contribution * self.disempowerment_score, 4)
+                values[i] = round(values[i] / total_contribution, 4)
         self.domain_contribution_w = pd.DataFrame({'Disempowerment Countribution Rate (Female)': values}, index=cols)
         
         df3 = df[(df['G1.04']=="male") & (df['empowered']== 0)].copy()
@@ -66,10 +66,12 @@ class WEAI():
             disempowered_ratios_m.append(disempowered_ratio_m)
         self.average_disempowered_m = round(sum(disempowered_ratios_m) / len(disempowered_ratios_m),4) # Average proportion of domains in which disempowered women experience inadequate achievements
         self.total_male = len(df[df['G1.04'] == 'male']) # Total number of women
-        self.non_empowered_m = len(df[(df['G1.04']=="male") & (df['empowered']==0)]) # Total number not empowered women
-        self.empowered_m = len(df[(df['G1.04']=="male") & (df['empowered']==1)]) # Total number empowered women
-        self.non_empowered_m_ratio = round(self.non_empowered_m/self.total_male,4) # Percentage of not empowered women
-        self.empowered_m_ratio = round(1 - self.non_empowered_m_ratio,4)  # Percentage of empowered women
+        self.non_empowered_m = len(df[(df['G1.04']=="male") & (df['empowered']==0)]) # Total number not empowered men
+        self.empowered_m = len(df[(df['G1.04']=="male") & (df['empowered']==1)]) # Total number empowered men
+        if self.total_male != 0:
+            self.non_empowered_m_ratio = round(self.non_empowered_m/self.total_male,4) # Percentage of not empowered men
+        else: self.non_empowered_m_ratio = 0
+        self.empowered_m_ratio = round(1 - self.non_empowered_m_ratio,4)  # Percentage of empowered men
         self.disempowerment_score_m = round(self.non_empowered_m_ratio * self.average_disempowered_m,4) # Value of Disempowerment score
         self.five_de_m = 1 - self.disempowerment_score_m # Value of 5DE sub-index
         
@@ -81,18 +83,18 @@ class WEAI():
         total_contribution = sum(values)
         if total_contribution > 0:
             for i, col in enumerate(cols):
-                values[i] = round(values[i] / total_contribution * self.disempowerment_score_m, 4)
+                values[i] = round(values[i] / total_contribution, 4)
         self.domain_contribution_m = pd.DataFrame({'Disempowerment Countribution Rate (Male)': values}, index=cols)
         self.domain_contribution = pd.concat([self.domain_contribution_w, self.domain_contribution_m], axis=1)
         return True
         
     def gender_parity_index(self):
         df = self.df
-        df = df[df['G1.06'] == 'dual-adult household (male and female adult)']
+        df = df[df['G1.06'] == 'dual-adult household']
         df_cleaned = df.dropna(subset=['i_score'])  # Ensure 'i_score' column has no NaN values
+        filtered_df = df_cleaned.groupby('G1.01').filter(lambda x: len(x) == 2)
+        grouped = filtered_df.groupby('G1.01')  # Group by household identification number
         self.total_respondents = len(df_cleaned) # Total number of dual-adult household respondents
-        grouped = df_cleaned.groupby('G1.01')  # Group by household identification number
-        
         differences = []  # To store the differences for each group
         
         for name, group in grouped:
@@ -151,22 +153,47 @@ class WEAI():
         for idx, col in enumerate(self.columns_indicators):
             count_ones = df[col].sum()
             total_count = df[col].count()
-            list_values[idx] = round(count_ones / total_count , 4)
-
+            list_values[idx] = round(count_ones / total_count , 3)
+            
+        df2 = self.df[self.df['G1.04'] == 'male']
+        list_values_m = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        for idx, col in enumerate(self.columns_indicators):
+            count_ones = df2[col].sum()
+            total_count = df2[col].count()
+            list_values_m[idx] = round(count_ones / total_count , 3)
+            
         domain_table_dic = {'1. Production': {
         ("Input in productive decisions", "Autonomy in production"): [list_values[0], list_values[1]]},
         "2. Resources": {("Ownership of assets", "Purchase, sale, or transfer of assets", "Access to and decisions on credit"): [list_values[2], list_values[3], list_values[4]]},
         "3. Income": {("Control over the use of income",): [list_values[5]]},"4. Leadership": {("Group membership", "Speaking in public"): [list_values[6], list_values[7]]},
         "5. Time allocation": {("Workload", "Leisure"): [list_values[8], list_values[9]]}}
+        
+        domain_table_dic_m = {'1. Production': {
+        ("Input in productive decisions", "Autonomy in production"): [list_values_m[0], list_values_m[1]]},
+        "2. Resources": {("Ownership of assets", "Purchase, sale, or transfer of assets", "Access to and decisions on credit"): [list_values_m[2], list_values_m[3], list_values_m[4]]},
+        "3. Income": {("Control over the use of income",): [list_values_m[5]]},"4. Leadership": {("Group membership", "Speaking in public"): [list_values_m[6], list_values_m[7]]},
+        "5. Time allocation": {("Workload", "Leisure"): [list_values_m[8], list_values_m[9]]}}
+        
+        
         rows = []
         
         for domain, indicators in domain_table_dic.items():
             for indicator_list, values in indicators.items():
                 for indicator, value in zip(indicator_list, values):
                     rows.append([domain, indicator, value])
+                    
+        rows2 = []
+        
+        for domain, indicators in domain_table_dic_m.items():
+            for indicator_list, values in indicators.items():
+                for indicator, value in zip(indicator_list, values):
+                    rows2.append([domain, indicator, value])
 
-        df = pd.DataFrame(rows, columns=['Domain', 'Indicator', 'Adequacy'])
-        df['Inadequacy'] = 1 - df['Adequacy']
+        df = pd.DataFrame(rows, columns=['Domain', 'Indicator', 'Adequacy (Female)'])
+        df['Inadequacy (Female)'] = 1 - df['Adequacy (Female)']
+        df2 = pd.DataFrame(rows2, columns=['Domain', 'Indicator', 'Adequacy (Male)'])
+        df = pd.merge(df, df2, on=['Domain', 'Indicator'])
+        df['Inadequacy (Male)'] = 1 - df['Adequacy (Male)']
 
         self.domain_table = df
         return self.domain_table

@@ -11,16 +11,16 @@ import WEAI_analysis as bd
 import pandas as pd
 
 # Tag of the project
-project_tag = "24-WFP-SO-1"
+project_tag = "24-WFP-SO-1 -"
 
 # Please assign the file path of the cleaned dataset
-file_path = 'data/.xlsx' 
+file_path = f'data/{project_tag} Data_cleaned.xlsx' 
 
 # Please assign the file path for data analysis matrix
-file_path2 = f"data/{project_tag} statistic_tables.xlsx"
+file_path2 = f"data/{project_tag} Statistic_tables.xlsx"
 
 # Please assign the file path for breakdown data
-file_path3 = f"data/{project_tag} breakdown_tables.xlsx"
+file_path3 = f"data/{project_tag} Breakdown_tables.xlsx"
 
 # Please assign the file path for data analysis matrix
 df = pd.read_excel(file_path)
